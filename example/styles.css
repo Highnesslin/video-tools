@@ -1,0 +1,30 @@
+.video-previewer {
+  position: relative;
+  width: 200px;
+  display: block;
+  margin: 0 auto;
+}
+
+.video-previewer img {
+  width: 100%;
+}
+
+.process,
+.process-inner {
+  height: 10px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  border-radius: 100px;
+}
+
+.process {
+  width: 100%;
+  background-color: #f0f0f0;
+}
+
+.process-inner {
+  width: 0;
+  background-color: #1677ff;
+}
