@@ -9,8 +9,7 @@
     "serve": "vite",
     "build": "tsc && vite build && bash ./script/build.sh",
     "prettier": "prettier --write ./(src|example|plugins)/**.ts(x)",
-    "eslint": "eslint --fix ./(src|example|plugins)/**.ts(x)",
-    "release": "standard-version --skip.commit && git add . && git commit --amend"
+    "eslint": "eslint --fix ./(src|example|plugins)/**.ts(x)"
   },
   "devDependencies": {
     "@types/emscripten": "^1.39.6",

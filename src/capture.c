@@ -32,11 +32,10 @@ AVFrame *initAVFrame(AVCodecContext *pCodecCtx, uint8_t **frameBuffer)
     *frameBuffer = (uint8_t *)av_malloc(numBytes * sizeof(uint8_t));
 
     av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize,
-    *frameBuffer, AV_PIX_FMT_RGB24, pCodecCtx->width, pCodecCtx->height, 1);
+                         *frameBuffer, AV_PIX_FMT_RGB24, pCodecCtx->width, pCodecCtx->height, 1);
 
     return pFrameRGB;
 }
-
 
 static char *dump_metadata(void *ctx, AVDictionary *m, const char *indent, const char *def)
 {
@@ -44,7 +43,8 @@ static char *dump_metadata(void *ctx, AVDictionary *m, const char *indent, const
     AVDictionaryEntry *tag = NULL;
     AVDictionaryEntry *result = av_dict_get(m, indent, NULL, 0);
     printf("遍历到的内容%s,值是%s\n", indent, result->value);
-    if (result->value) {
+    if (result->value)
+    {
         return result->value;
     }
     return info;
@@ -78,7 +78,7 @@ int getIframes(AVFormatContext *qFormatCtx, int videoStream, int timeStamp, int 
 }
 
 AVFrame *readAVFrame(AVCodecContext *pCodecCtx, AVFormatContext *pFormatCtx, AVFrame *pFrameRGB,
-int videoStream, int timeStamp, FrameInfo *frameInfo, int *Iframe, int icount)
+                     int videoStream, int timeStamp, FrameInfo *frameInfo, int *Iframe, int icount)
 {
     struct SwsContext *sws_ctx = NULL;
 
@@ -88,7 +88,7 @@ int videoStream, int timeStamp, FrameInfo *frameInfo, int *Iframe, int icount)
     pFrame = av_frame_alloc();
 
     sws_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt,
-    pCodecCtx->width, pCodecCtx->height, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL);
+                             pCodecCtx->width, pCodecCtx->height, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL);
     // av_read_frame分配数据
     int FirstPts = pFrame->pts;
     // 计算每一帧最近的关键帧 然后算差值
@@ -149,7 +149,8 @@ int videoStream, int timeStamp, FrameInfo *frameInfo, int *Iframe, int icount)
             { // 从解码器内部缓存中提取解码后的音视频帧 返回0是成功
                 // printf("pFrame%d\n", FirstPts);
                 int nowTime = pFrame->pts;
-                if (nowTime < nearInum) {
+                if (nowTime < nearInum)
+                {
                     continue;
                 }
                 // 如果是第0帧 插入frameList
@@ -157,22 +158,13 @@ int videoStream, int timeStamp, FrameInfo *frameInfo, int *Iframe, int icount)
                 {
                     Iframe[0] = nowTime;
                 }
-                printf("nowtime==>%d,frameInfo->lastKeyframe%d,chazhi%d,base是%d\n", nowTime, frameInfo->lastKeyframe, chazhi, pFormatCtx->streams[videoStream]->time_base.den
-                            / pFormatCtx->streams[videoStream]->time_base.num);
+                printf("nowtime==>%d,frameInfo->lastKeyframe%d,chazhi%d,base是%d\n", nowTime, frameInfo->lastKeyframe, chazhi, pFormatCtx->streams[videoStream]->time_base.den / pFormatCtx->streams[videoStream]->time_base.num);
                 if (
-                    (nowTime - frameInfo->lastKeyframe) >= chazhi
-                    || (
-                        (nowTime - frameInfo->lastKeyframe)
-                        >= (
-                            pFormatCtx->streams[videoStream]->time_base.den
-                            / pFormatCtx->streams[videoStream]->time_base.num
-                        ) * 2
-                    )
-                )
+                    (nowTime - frameInfo->lastKeyframe) >= chazhi || ((nowTime - frameInfo->lastKeyframe) >= (pFormatCtx->streams[videoStream]->time_base.den / pFormatCtx->streams[videoStream]->time_base.num) * 2))
                 { // 继续解包寻找需要的帧
                     // buffer为目标
                     sws_scale(sws_ctx, (uint8_t const *const *)pFrame->data, pFrame->linesize, 0,
-                    pCodecCtx->height, pFrameRGB->data, pFrameRGB->linesize);
+                              pCodecCtx->height, pFrameRGB->data, pFrameRGB->linesize);
                     // sws_scale做分辨率像素视频格式转换
                     // sws_freeContext(sws_ctx);
                     // av_frame_free(&pFrame);
@@ -217,7 +209,7 @@ const char *get_js_code(ImageData ptr, int id)
     return buf;
 }
 ImageData *getSpecificFrame(AVCodecContext *pNewCodecCtx, AVFormatContext *pFormatCtx,
-int videoStream, int time, FrameInfo *frameInfo, int *Iframe, int counts, int id)
+                            int videoStream, int time, FrameInfo *frameInfo, int *Iframe, int counts, int id)
 {
     uint8_t *frameBuffer = 0;
     AVFrame *pFrameRGB = initAVFrame(pNewCodecCtx, &frameBuffer);
@@ -319,7 +311,7 @@ ImageData **captureByCount(int count, char *path, int id)
     // 第一帧的数据 立即抽出来
     // TODO: 穿出去的数据应该加一个当前数据idx 可以选择在前端排序
     FrameInfo *frameInfo;
-    frameInfo =  (struct FrameInfo *)malloc(sizeof(FrameInfo));
+    frameInfo = (struct FrameInfo *)malloc(sizeof(FrameInfo));
     // 初始化结构体
     frameInfo->lastKeyframe = 0;
     frameInfo->lastIframe = -1;
@@ -333,7 +325,7 @@ ImageData **captureByCount(int count, char *path, int id)
     // TODO:
     // seek I frame
     int iFrameCounts = getIframes(pFormatCtx, videoStream, 0, Iframe, 1);
-        // 间隔2s 在ffmpeg里面的时间
+    // 间隔2s 在ffmpeg里面的时间
     int base = pFormatCtx->streams[videoStream]->time_base.den / pFormatCtx->streams[videoStream]->time_base.num;
     printf("===>总共是%d, duration是%d,base是%d\n", iFrameCounts, duration, base);
     // 换算成他的时间单位
@@ -346,7 +338,7 @@ ImageData **captureByCount(int count, char *path, int id)
     int lastIFrameBtwEnd = tmpDuration - Iframe[iFrameCounts - 1];
     int noramlInterval = 2 * base;
     // 如果最后一帧和结束时间的差值大于2s则可插入剩余图片
-    int lastFrameAdd = lastIFrameBtwEnd > noramlInterval ? 0: 1;
+    int lastFrameAdd = lastIFrameBtwEnd > noramlInterval ? 0 : 1;
     // 找到关键帧数目后 根据长度计算补齐位置
     int timeFrameList[count + 1];
     // 遍历 补齐剩下缺失的帧
@@ -356,7 +348,7 @@ ImageData **captureByCount(int count, char *path, int id)
         int multiple = (iFrameCounts - 1) / (count - 1);
         for (int i = 0; i < count; i++)
         {
-            timeFrameList[i] = Iframe[multiple*i];
+            timeFrameList[i] = Iframe[multiple * i];
         }
     }
     else
@@ -369,8 +361,7 @@ ImageData **captureByCount(int count, char *path, int id)
             timeFrameList[0] = 0;
             for (int i = 0; i < count; i++)
             {
-                timeFrameList[i] = timeFrameList[i - 1]
-                + (tmpDuration / count > noramlInterval ? noramlInterval : tmpDuration / count);
+                timeFrameList[i] = timeFrameList[i - 1] + (tmpDuration / count > noramlInterval ? noramlInterval : tmpDuration / count);
             }
         }
         else
@@ -388,7 +379,7 @@ ImageData **captureByCount(int count, char *path, int id)
                 if ((i != iFrameCounts - 1) || (lastFrameAdd == 0))
                 {
                     int frameNumWillBePush = interval + (i < left ? 1 : 0);
-                    int intervalBetweenTowIFrame = (i != iFrameCounts - 1) ? Iframe[i + 1] - Iframe[i]: lastIFrameBtwEnd;
+                    int intervalBetweenTowIFrame = (i != iFrameCounts - 1) ? Iframe[i + 1] - Iframe[i] : lastIFrameBtwEnd;
                     int groupTimeInterval = (intervalBetweenTowIFrame * 0.1);
                     int realInterval = 0;
                     // 如果比10%还要密集 直接取区间均值
@@ -419,7 +410,7 @@ ImageData **captureByCount(int count, char *path, int id)
     for (int idx = 1; idx < count; idx++)
     {
         dataList[idx] = *(getSpecificFrame(pNewCodecCtx, pFormatCtx,
-        videoStream, timeFrameList[idx], frameInfo, Iframe, iFrameCounts, id));
+                                           videoStream, timeFrameList[idx], frameInfo, Iframe, iFrameCounts, id));
     }
 
     avcodec_close(pNewCodecCtx);
@@ -493,7 +484,7 @@ ImageData **captureByMs(char *ms, char *path, int id)
     ImageData *dataList = (ImageData *)malloc(sizeof(ImageData) * len);
     int idx = 0;
     FrameInfo *frameInfo;
-    frameInfo =  (struct FrameInfo *)malloc(sizeof(FrameInfo));
+    frameInfo = (struct FrameInfo *)malloc(sizeof(FrameInfo));
     // 初始化结构体
     frameInfo->lastKeyframe = 0;
     frameInfo->lastIframe = -1;
@@ -520,10 +511,9 @@ ImageData **captureByMs(char *ms, char *path, int id)
     for (idx; idx < len; idx++)
     {
         // 生成结构体 模拟生成指针 存到dataList
-        int timeStamp = ((double)(frameData[idx]) / (double)1000)
-        * pFormatCtx->streams[videoStream]->time_base.den / pFormatCtx->streams[videoStream]->time_base.num;
+        int timeStamp = ((double)(frameData[idx]) / (double)1000) * pFormatCtx->streams[videoStream]->time_base.den / pFormatCtx->streams[videoStream]->time_base.num;
         dataList[idx] = *(getSpecificFrame(pNewCodecCtx, pFormatCtx,
-        videoStream, timeStamp, frameInfo, Iframe, counts, id));
+                                           videoStream, timeStamp, frameInfo, Iframe, counts, id));
         // dataList[idx] = *imageData;
         // free
     }
@@ -535,6 +525,7 @@ ImageData **captureByMs(char *ms, char *path, int id)
     avformat_close_input(&pFormatCtx);
     return dataList;
 }
+
 int main(int argc, char const *argv[])
 {
     av_register_all();
