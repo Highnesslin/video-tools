@@ -10,3 +10,7 @@
 
 1. JS 调用 C 函数: `Module.cwrap`
 2. C 调用 JS 函数: `emscripten_run_script`
+
+## 其他方案
+
+[ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)
